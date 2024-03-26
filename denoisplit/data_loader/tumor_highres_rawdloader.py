@@ -16,7 +16,7 @@ from denoisplit.data_loader.multifile_raw_dloader import get_train_val_data as g
 def get_two_channel_files():
     fnames = [
             '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
-            # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
+            '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
             # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack6.tif',
             # '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack2_230725.tif',
             # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack3.tif',
@@ -49,12 +49,12 @@ def get_two_channel_files():
             # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack2.tif',
             # '240323SJS60S24mGFP_GFP488_sectionA5_post4xM_stack4.tif',
             # '230812R10S24mGFP_Rx_sectionA1_B2.1_GFP488_post4xM_stack8.tif',
-            # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack3.tif',
+            '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack3.tif',
             # '240323SJS60S24mGFP_GFP488_sectionA5_post4xM_stack5.tif',
             # '230812R10S24mGFP_Rx_sectionA1_B2.1_GFP488_post4xM_stack9.tif',
             # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack4.tif',
             # '240323SJS60S24mGFP_GFP488_sectionA5_post4xM_stack6.tif',
-            # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack1.tif',
+            '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack1.tif',
             # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack5.tif',
             # '240323SJS60S24mGFP_GFP488_sectionA5_post4xM_stack7.tif',
     ]
