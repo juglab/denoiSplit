@@ -29,3 +29,4 @@ class DataType(Enum):
     Pavia3SeqData = 24
     # Here, we have 16 splitting tasks.
     NicolaData = 25
+    TumorHighRes = 26

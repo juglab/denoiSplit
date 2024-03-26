@@ -47,6 +47,9 @@ class MultiChDloader:
         # NOTE: Input is the sum of the different channels. It is not the average of the different channels.
         self._input_is_sum = data_config.get('input_is_sum', False)
         self._num_channels = data_config.get('num_channels', 2)
+        self._input_idx = data_config.get('input_idx', None)
+        self._tar_idx = data_config.get('tar_idx', None)
+
         if datasplit_type == DataSplitType.Train:
             self._datausage_fraction = data_config.get('trainig_datausage_fraction', 1.0)
             # assert self._datausage_fraction == 1.0, 'Not supported. Use validtarget_random_fraction and training_validtarget_fraction to get the same effect'
@@ -559,12 +562,32 @@ class MultiChDloader:
     def get_mean_std_for_input(self):
         return self.get_mean_std()
 
+    def _compute_target(self, img_tuples, alpha):
+        if self._tar_idx is not None:
+            target = img_tuples[self._tar_idx]
+        else:
+            if self._alpha_weighted_target:
+                assert self._input_is_sum is False
+                target = []
+                for i in range(len(img_tuples)):
+                    target.append(img_tuples[i] * alpha[i])
+                target = np.concatenate(target, axis=0)
+            else:
+                target = np.concatenate(img_tuples, axis=0)
+        return target
+    
     def _compute_input_with_alpha(self, img_tuples, alpha):
-        assert self._normalized_input is True, "normalization should happen here"
-        inp = 0
-        for alpha, img in zip(alpha, img_tuples):
-            inp += img * alpha
+        # assert self._normalized_input is True, "normalization should happen here"
+        if self._input_idx is not None:
+            inp = img_tuples[self._input_idx]
+        else:
+            inp = 0
+            for alpha, img in zip(alpha, img_tuples):
+                inp += img * alpha
 
+            if self._normalized_input is False:
+                return inp.astype(np.float32)
+    
         mean, std = self.get_mean_std_for_input()
         mean = mean.squeeze()
         std = std.squeeze()
@@ -637,14 +660,7 @@ class MultiChDloader:
         if len(noise_tuples) >= 1:
             img_tuples = [x + noise for x, noise in zip(img_tuples, noise_tuples[1:])]
 
-        if self._alpha_weighted_target:
-            assert self._input_is_sum is False
-            target = []
-            for i in range(len(img_tuples)):
-                target.append(img_tuples[i] * alpha[i])
-            target = np.concatenate(target, axis=0)
-        else:
-            target = np.concatenate(img_tuples, axis=0)
+        target = self._compute_target(img_tuples, alpha)
 
         output = [inp, target]
 

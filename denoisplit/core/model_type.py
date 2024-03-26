@@ -31,3 +31,4 @@ class ModelType(Enum):
     LadderVAERestrictedReconstruction = 26
     LadderVAETwoDataSetRestRecon = 27
     LadderVAETwoDataSetFinetuning = 28
+    LadderVAETranslation = 29
