@@ -14,7 +14,7 @@ def get_config():
     config = get_default_config()
     data = config.data
     data.image_size = 128
-    data.data_type = DataType.TumorHighRes 
+    data.data_type = DataType.TumorHighRes
     data.inp_idx = 0
     data.tar_idx = 1
     data.subdset_type = SubDsetType.TwoChannel
@@ -59,7 +59,7 @@ def get_config():
     loss.kl_loss_formulation = ''
     # loss.mixed_rec_weight = 1
 
-    loss.kl_weight = 2.0
+    loss.kl_weight = 1.0
     loss.kl_annealing = False
     loss.kl_annealtime = 10
     loss.kl_start = -1
@@ -114,8 +114,8 @@ def get_config():
     training = config.training
     training.lr = 0.001 / 2
     training.lr_scheduler_patience = 30
-    training.max_epochs = 200
-    training.batch_size = 32
+    training.max_epochs = 5
+    training.batch_size = 16
     training.num_workers = 4
     training.val_repeat_factor = None
     training.train_repeat_factor = None
