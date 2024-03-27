@@ -64,7 +64,7 @@ def get_config():
     loss.kl_annealtime = 10
     loss.kl_start = -1
     loss.kl_min = 1e-7
-    loss.free_bits = 0.0
+    loss.free_bits = 1.0
     # loss.ch1_recons_w = 1
     # loss.ch2_recons_w = 5
 
