@@ -74,21 +74,23 @@ def noise_model_config_sanity_check(noise_model_fpath, config, channel_key=None)
 
 
 def get_noise_model(config):
-    if config.model.noise_model_type == 'hist':
-        print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-        hist1 = np.load(config.model.noise_model_ch1_fpath)
-        nmodel1 = HistNoiseModel(hist1)
-        nmodel2 = None
-    elif config.model.noise_model_type == 'gmm':
-        nmodel_fpath = config.model.noise_model_ch1_fpath
-        print(f'Noise model Ch1: {nmodel_fpath}')
-        nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
-        noise_model_config_sanity_check(nmodel_fpath, config, 'ch1_fname')
-        nmodel2 = None
-        if config.model.get('noise_model_learnable', False):
-            nmodel1.make_learnable()
-            if nmodel2 is not None:
-                nmodel2.make_learnable()
+    if 'enable_noise_model' in config.model and config.model.enable_noise_model:
+        if config.model.noise_model_type == 'hist':
+            print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
+            hist1 = np.load(config.model.noise_model_ch1_fpath)
+            nmodel1 = HistNoiseModel(hist1)
+            nmodel2 = None
+            return nmodel1, nmodel2
+        elif config.model.noise_model_type == 'gmm':
+            nmodel_fpath = config.model.noise_model_ch1_fpath
+            print(f'Noise model Ch1: {nmodel_fpath}')
+            nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
+            noise_model_config_sanity_check(nmodel_fpath, config, 'ch1_fname')
+            nmodel2 = None
+            if config.model.get('noise_model_learnable', False):
+                nmodel1.make_learnable()
+                if nmodel2 is not None:
+                    nmodel2.make_learnable()
 
-        return DisentNoiseModel(nmodel1, nmodel2)
+            return DisentNoiseModel(nmodel1, nmodel2)
     return None
