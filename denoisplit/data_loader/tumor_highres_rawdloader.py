@@ -26,7 +26,7 @@ def get_just_input_files():
 def get_two_channel_files():
     fnames = [
             '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
-            '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
+            # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
             # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack6.tif',
             # '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack2_230725.tif',
             # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack3.tif',

@@ -74,79 +74,17 @@ def noise_model_config_sanity_check(noise_model_fpath, config, channel_key=None)
 
 
 def get_noise_model(config):
-    if 'enable_noise_model' in config.model and config.model.enable_noise_model:
-        if config.model.model_type == ModelType.Denoiser:
-            if config.model.noise_model_type == 'hist':
-                if config.model.denoise_channel == 'Ch1':
-                    print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-                    hist1 = np.load(config.model.noise_model_ch1_fpath)
-                    nmodel1 = HistNoiseModel(hist1)
-                    nmodel2 = None
-                elif config.model.denoise_channel == 'Ch2':
-                    print(f'Noise model Ch2: {config.model.noise_model_ch2_fpath}')
-                    hist2 = np.load(config.model.noise_model_ch2_fpath)
-                    nmodel1 = HistNoiseModel(hist2)
-                    nmodel2 = None
-                elif config.model.denoise_channel == 'input':
-                    print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-                    hist1 = np.load(config.model.noise_model_ch1_fpath)
-                    nmodel1 = HistNoiseModel(hist1)
-                    nmodel2 = None
-            elif config.model.noise_model_type == 'gmm':
-                if config.model.denoise_channel == 'Ch1':
-                    nmodel_fpath = config.model.noise_model_ch1_fpath
-                    print(f'Noise model Ch1: {nmodel_fpath}')
-                    nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
-                    noise_model_config_sanity_check(nmodel_fpath, config, 'ch1_fname')
-                    nmodel2 = None
-                elif config.model.denoise_channel == 'Ch2':
-                    nmodel_fpath = config.model.noise_model_ch2_fpath
-                    print(f'Noise model Ch2: {nmodel_fpath}')
-                    nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
-                    noise_model_config_sanity_check(nmodel_fpath, config, 'ch2_fname')
-                    nmodel2 = None
-                elif config.model.denoise_channel == 'input':
-                    nmodel_fpath = config.model.noise_model_ch1_fpath
-                    print(f'Noise model input: {nmodel_fpath}')
-                    nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
-                    noise_model_config_sanity_check(nmodel_fpath, config)
-                    nmodel2 = None
-            else:
-                raise ValueError(f'Invalid denoise_channel: {config.model.denoise_channel}')
-        elif config.model.noise_model_type == 'hist':
-            print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-            print(f'Noise model Ch2: {config.model.noise_model_ch2_fpath}')
-
-            hist1 = np.load(config.model.noise_model_ch1_fpath)
-            nmodel1 = HistNoiseModel(hist1)
-            hist2 = np.load(config.model.noise_model_ch2_fpath)
-            nmodel2 = HistNoiseModel(hist2)
-        elif config.model.noise_model_type == 'histgmm':
-            print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-            print(f'Noise model Ch2: {config.model.noise_model_ch2_fpath}')
-
-            noise_model_config_sanity_check(config.model.noise_model_ch1_fpath, config, 'ch1_fname')
-            noise_model_config_sanity_check(config.model.noise_model_ch2_fpath, config, 'ch2_fname')
-
-            hist1 = np.load(config.model.noise_model_ch1_fpath)
-            nmodel1 = HistGMMNoiseModel(hist1)
-            nmodel1.fit()
-
-            hist2 = np.load(config.model.noise_model_ch2_fpath)
-            nmodel2 = HistGMMNoiseModel(hist2)
-            nmodel2.fit()
-
-        elif config.model.noise_model_type == 'gmm':
-            print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
-            print(f'Noise model Ch2: {config.model.noise_model_ch2_fpath}')
-
-            nmodel1 = GaussianMixtureNoiseModel(params=np.load(config.model.noise_model_ch1_fpath))
-            nmodel2 = GaussianMixtureNoiseModel(params=np.load(config.model.noise_model_ch2_fpath))
-            noise_model_config_sanity_check(config.model.noise_model_ch1_fpath, config, 'ch1_fname')
-            noise_model_config_sanity_check(config.model.noise_model_ch2_fpath, config, 'ch2_fname')
-            # nmodel1 = DeepGMMNoiseModel(params=np.load(config.model.noise_model_ch1_fpath))
-            # nmodel2 = DeepGMMNoiseModel(params=np.load(config.model.noise_model_ch2_fpath))
-
+    if config.model.noise_model_type == 'hist':
+        print(f'Noise model Ch1: {config.model.noise_model_ch1_fpath}')
+        hist1 = np.load(config.model.noise_model_ch1_fpath)
+        nmodel1 = HistNoiseModel(hist1)
+        nmodel2 = None
+    elif config.model.noise_model_type == 'gmm':
+        nmodel_fpath = config.model.noise_model_ch1_fpath
+        print(f'Noise model Ch1: {nmodel_fpath}')
+        nmodel1 = GaussianMixtureNoiseModel(params=np.load(nmodel_fpath))
+        noise_model_config_sanity_check(nmodel_fpath, config, 'ch1_fname')
+        nmodel2 = None
         if config.model.get('noise_model_learnable', False):
             nmodel1.make_learnable()
             if nmodel2 is not None:

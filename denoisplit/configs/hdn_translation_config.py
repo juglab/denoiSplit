@@ -107,9 +107,13 @@ def get_config():
     model.multiscale_retain_spatial_dims = True
     model.monitor = 'val_psnr'  # {'val_loss','val_psnr'}
     model.non_stochastic_version = False
-    model.enable_noise_model = False
-    model.noise_model_ch1_fpath = None
-    model.noise_model_ch1_fpath = None
+    model.noise_model_ch2_fpath = ''
+    model.noise_model_type = 'gmm' #hist
+    #####################################
+    # For enabling/disabling noise model, use  the following two parameters.
+    model.noise_model_ch1_fpath = '/home/ashesh.ashesh/training/noise_model/2403/11/GMMNoiseModel_lowres-230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
+    model.enable_noise_model = True
+    #####################################
 
     training = config.training
     training.lr = 0.001 / 2
