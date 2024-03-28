@@ -13,6 +13,16 @@ from denoisplit.data_loader.multifile_raw_dloader import SubDsetType
 from denoisplit.data_loader.multifile_raw_dloader import get_train_val_data as get_train_val_data_twochannels
 
 
+def get_just_input_files():
+    """
+    In this case, we don't have access to the target. we just have access to the input. 
+    """
+    fnames = [
+            'lowres/230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
+            # 'lowres/230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
+    ]
+    return fnames 
+
 def get_two_channel_files():
     fnames = [
             '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
@@ -64,10 +74,16 @@ def get_two_channel_files():
 
 
 
-def get_train_val_data(datadir, data_config, datasplit_type: DataSplitType, val_fraction=None, test_fraction=None):
-    assert data_config.subdset_type == SubDsetType.TwoChannel
-    files_fn = get_two_channel_files
 
+def get_train_val_filenames(datadir, data_config, datasplit_type: DataSplitType, val_fraction=None, test_fraction=None):
+    if data_config.subdset_type == SubDsetType.TwoChannel:
+        files_fn = get_two_channel_files
+    elif data_config.subdset_type == SubDsetType.OneChannel:
+        files_fn = get_just_input_files
+    return files_fn
+
+def get_train_val_data(datadir, data_config, datasplit_type: DataSplitType, val_fraction=None, test_fraction=None):
+    files_fn = get_train_val_filenames(datadir, data_config, datasplit_type, val_fraction, test_fraction)
     return get_train_val_data_twochannels(datadir,
                                           data_config,
                                           datasplit_type,

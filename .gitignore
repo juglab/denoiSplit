@@ -6,3 +6,4 @@ wandb
 *.npy
 output_*.txt
 *.pyc
+*.tif
