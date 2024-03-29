@@ -15,19 +15,21 @@ from denoisplit.data_loader.multifile_raw_dloader import get_train_val_data as g
 
 def get_just_input_files():
     """
-    In this case, we don't have access to the target. we just have access to the input. 
+    In this case, we don't have access to the target. we just have access to the input.
     """
     fnames = [
-            'lowres/230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
-            # 'lowres/230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
+            #'realdata/182_ER099_D86_S24mGFP_Tilescan_TRITC_T02-crop2_upscaled_crop.tif',
+            #'realdata/ER041_Tilescan_merged_RobbiDone-crop2.tif_Frame1_upscaled-crop1_z680-710-1.tif',
+            #'realdata/ER041_Tilescan_merged_RobbiDone-crop3.tif_Frame1_upscaled-crop1-1.tif',
+            'lowres/230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
     ]
-    return fnames 
+    return fnames
 
 def get_two_channel_files():
     fnames = [
             '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725.tif',
             # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack2.tif',
-            # '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack6.tif',
+            '240323ER111S24mGFP_GFP488_sectionB4_post4xM_stack6.tif',
             # '230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack2_230725.tif',
             # '230812R10S24mGFP_Rx_sectionA2_B2.1_GFP488_post4xM_stack3.tif',
             # '240323ER111S24mGFP_GFP488_sectionB5_post4xM_stack1.tif',

@@ -688,6 +688,7 @@ class LadderVAE(pl.LightningModule):
             target_normalized = self.normalize_target(target)
             mask = ~((target == 0).reshape(len(target), -1).all(dim=1))
 
+
         out, td_data = self.forward(x_normalized)
         if self.encoder_no_padding_mode and out.shape[-2:] != target_normalized.shape[-2:]:
             target_normalized = F.center_crop(target_normalized, out.shape[-2:])
@@ -703,6 +704,7 @@ class LadderVAE(pl.LightningModule):
             target_normalized = target_normalized[:, :, pad:-pad, pad:-pad]
 
         recons_loss = recons_loss_dict['loss'] * self.reconstruction_weight
+        import pdb;pdb.set_trace()
         if torch.isnan(recons_loss).any():
             recons_loss = 0.0
 

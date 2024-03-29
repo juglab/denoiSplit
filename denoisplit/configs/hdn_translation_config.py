@@ -111,14 +111,15 @@ def get_config():
     model.noise_model_type = 'gmm' #hist
     #####################################
     # For enabling/disabling noise model, use  the following two parameters.
-    model.noise_model_ch1_fpath = '/home/ashesh.ashesh/training/noise_model/2403/11/GMMNoiseModel_lowres-230730ER111S24mGFP_sectionB3_GFP488_post4xM_stack1_230725__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
+    model.noise_model_ch1_fpath = '/home/spock/Documents/ekin/training/noise_model/2403/5/GMMNoiseModel_lowres-240323SJS60S24mGFP_GFP488_sectionA5_post4xM_stack6__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm1_bootstrap.npz'
     model.enable_noise_model = True
     #####################################
 
     training = config.training
     training.lr = 0.001 / 2
     training.lr_scheduler_patience = 30
-    training.max_epochs = 5
+    training.max_epochs = 20
+
     training.batch_size = 16
     training.num_workers = 4
     training.val_repeat_factor = None

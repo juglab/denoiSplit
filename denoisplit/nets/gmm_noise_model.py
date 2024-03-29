@@ -53,7 +53,7 @@ class GaussianMixtureNoiseModel(nn.Module):
                 min_sigma: int
                     All values of sigma (`standard deviation`) below min_sigma are clamped to become equal to min_sigma.
                 params: dictionary
-                    Use `params` if one wishes to load a model with trained weights. 
+                    Use `params` if one wishes to load a model with trained weights.
                     While initializing a new object of the class `GaussianMixtureNoiseModel` from scratch, set this to `None`.
             Example
             -------
@@ -213,6 +213,7 @@ class GaussianMixtureNoiseModel(nn.Module):
             expval = torch.exp(self.polynomialRegressor(self.weight[2 * kernels + num, :], signals) + self.tol)
             # self.maxval = max(self.maxval, expval.max().item())
             alpha.append(expval)
+            
 
         sum_alpha = 0
         for al in range(kernels):
