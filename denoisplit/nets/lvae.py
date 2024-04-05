@@ -704,8 +704,6 @@ class LadderVAE(pl.LightningModule):
             target_normalized = target_normalized[:, :, pad:-pad, pad:-pad]
 
         recons_loss = recons_loss_dict['loss'] * self.reconstruction_weight
-        print(recons_loss)
-        import pdb;pdb.set_trace()
         if torch.isnan(recons_loss).any():
             recons_loss = 0.0
 
