@@ -32,6 +32,7 @@ from denoisplit.nets.lvae_with_stitch import LadderVAEwithStitching
 from denoisplit.nets.lvae_with_stitch_2stage import LadderVAEwithStitching2Stage
 from denoisplit.nets.splitter_denoiser import SplitterDenoiser
 from denoisplit.nets.unet import UNet
+from denoisplit.nets.lvae_translation import LadderVAETranslation
 
 
 def create_model(config, data_mean, data_std, val_idx_manager=None):
@@ -84,6 +85,8 @@ def create_model(config, data_mean, data_std, val_idx_manager=None):
         model = LadderVaeTwoDsetRestrictedRecons(data_mean, data_std, config)
     elif config.model.model_type == ModelType.LadderVAETwoDataSetFinetuning:
         model = LadderVaeTwoDsetFinetuning(data_mean, data_std, config)
+    elif config.model.model_type == ModelType.LadderVAETranslation:
+        model = LadderVAETranslation(data_mean, data_std, config)
     else:
         raise Exception('Invalid model type:', config.model.model_type)
 
