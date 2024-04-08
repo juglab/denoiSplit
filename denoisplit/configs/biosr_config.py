@@ -13,7 +13,7 @@ def get_config():
     # data.channel_1 = 0
     # data.channel_2 = 1
     data.ch1_fname = 'ER/GT_all.mrc'
-    data.ch2_fname = 'Microtubules/GT_all.mrc'
+    data.ch2_fname = 'CCPs/GT_all.mrc'
     data.num_channels = 2
 
     data.poisson_noise_factor = 1000
@@ -22,7 +22,7 @@ def get_config():
     data.trainig_datausage_fraction = 1.0
     # data.validtarget_random_fraction = 1.0
     # data.training_validtarget_fraction = 0.2
-    config.data.synthetic_gaussian_scale = 6675
+    config.data.synthetic_gaussian_scale = 5000
     # if True, then input has 'identical' noise as the target. Otherwise, noise of input is independently sampled.
     config.data.input_has_dependant_noise = True
 

@@ -279,13 +279,17 @@ class MultiChDloader:
         self.set_img_sz(self._img_sz, self._grid_sz)
         print(f'[{self.__class__.__name__}] Data reduced. New data shape: {self._data.shape}')
 
-    def set_img_sz(self, image_size, grid_size):
+    def set_img_sz(self, image_size, grid_size, grid_alignment=None, overlapping_padding_kwargs=None):
         """
         If one wants to change the image size on the go, then this can be used.
         Args:
             image_size: size of one patch
             grid_size: frame is divided into square grids of this size. A patch centered on a grid having size `image_size` is returned.
         """
+        if grid_alignment is not None:
+            self._grid_alignment = grid_alignment
+            assert overlapping_padding_kwargs is not None, 'Padding is needed with Center grid alignment.'
+            self._overlapping_padding_kwargs = overlapping_padding_kwargs
 
         self._img_sz = image_size
         self._grid_sz = grid_size
