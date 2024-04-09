@@ -443,6 +443,7 @@ def create_model_and_train(config, data_mean, data_std, logger, checkpoint_callb
         val_idx_manager = val_loader.dataset.idx_manager
     else:
         val_idx_manager = None
+
     model = create_model(config, data_mean, data_std, val_idx_manager=val_idx_manager)
 
     if config.model.model_type == ModelType.LadderVaeStitch2Stage:
@@ -558,18 +559,18 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from denoisplit.configs.deepencoder_lvae_config import get_config
+    # from denoisplit.configs.deepencoder_lvae_config import get_config
 
-    config = get_config()
-    train_data, val_data = create_dataset(config, '/group/jug/ashesh/data/microscopy/')
+    # config = get_config()
+    # train_data, val_data = create_dataset(config, '/group/jug/ashesh/data/microscopy/')
 
-    dset = val_data
-    idx = 0
-    _, ax = plt.subplots(figsize=(9, 3), ncols=3)
-    inp, target, alpha_val, ch1_idx, ch2_idx = dset[(idx, idx, 64, 19)]
-    ax[0].imshow(inp[0])
-    ax[1].imshow(target[0])
-    ax[2].imshow(target[1])
+    # dset = val_data
+    # idx = 0
+    # _, ax = plt.subplots(figsize=(9, 3), ncols=3)
+    # inp, target, alpha_val, ch1_idx, ch2_idx = dset[(idx, idx, 64, 19)]
+    # ax[0].imshow(inp[0])
+    # ax[1].imshow(target[0])
+    # ax[2].imshow(target[1])
 
-    print(len(train_data), len(val_data))
-    print(inp.mean(), target.mean())
+    # print(len(train_data), len(val_data))
+    # print(inp.mean(), target.mean())
