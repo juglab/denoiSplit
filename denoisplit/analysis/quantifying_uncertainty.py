@@ -5,7 +5,6 @@ from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import torch
 
 from denoisplit.analysis.lvae_utils import get_img_from_forward_output

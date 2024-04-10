@@ -5,7 +5,7 @@ import numpy as np
 
 from denoisplit.core.data_split_type import DataSplitType
 from denoisplit.data_loader.multifile_raw_dloader import get_train_val_data as get_train_val_data_multichannel
-from nd2reader import ND2Reader
+# from nd2reader import ND2Reader
 
 
 def get_start_end_index(key):

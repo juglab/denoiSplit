@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 
 import git
 import ml_collections
-import tensorboard
+# import tensorboard
 from absl import app, flags
 from denoisplit.config_utils import get_updated_config
 from denoisplit.core.data_type import DataType

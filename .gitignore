@@ -5,3 +5,6 @@ __pycache__
 wandb
 *.npy
 output_*.txt
+denoisplit/notebooks/lightning_logs/
+denoisplit/notebooks/checkpoints/
+denoisplit/notebooks/tensorboard_logs/

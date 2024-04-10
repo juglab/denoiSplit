@@ -7,7 +7,7 @@ import numpy as np
 
 from denoisplit.core.custom_enum import Enum
 from denoisplit.core.data_split_type import DataSplitType, get_datasplit_tuples
-from nd2reader import ND2Reader
+# from nd2reader import ND2Reader
 
 
 class Pavia3SeqPowerLevel(Enum):

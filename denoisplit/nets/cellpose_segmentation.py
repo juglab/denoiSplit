@@ -1,5 +1,5 @@
 from cellpose import models
-from czifile import imread as imread_czi
+# from czifile import imread as imread_czi
 import numpy as np
 import os
 

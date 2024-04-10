@@ -5,7 +5,7 @@ It has 2 versions: denoised and raw data.
 """
 import os
 import numpy as np
-from nd2reader import ND2Reader
+# from nd2reader import ND2Reader
 from denoisplit.core.data_split_type import DataSplitType, get_datasplit_tuples
 from denoisplit.data_loader.pavia2_enums import Pavia2DataSetType, Pavia2DataSetChannels, Pavia2DataSetVersion
 

@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 
-from czifile import imread as imread_czi
+# from czifile import imread as imread_czi
 from denoisplit.core.custom_enum import Enum
 from denoisplit.core.data_split_type import DataSplitType, get_datasplit_tuples
 from denoisplit.core.tiff_reader import load_tiff

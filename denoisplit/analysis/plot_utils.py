@@ -2,7 +2,7 @@ from typing import List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
+# import seaborn as sns
 import torch
 
 from denoisplit.analysis.critic_notebook_utils import get_label_separated_loss, get_mmse_dict
