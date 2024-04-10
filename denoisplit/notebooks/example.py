@@ -15,6 +15,12 @@ Here, we look at CCPs (clathrin-coated pits) vs ER (Endoplasmic reticulum) task,
 # a useful library developed by Google for maintaining the ML configs.
 ! pip install ml-collections
 
+# %%
+! git clone https://github.com/juglab/denoiSplit.git
+# %%
+import sys
+sys.path.append('./denoiSplit')
+
 # %% [markdown]
 """
 ### Mandatory actions
