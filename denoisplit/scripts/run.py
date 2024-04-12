@@ -10,6 +10,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
+import wandb
 
 import numpy as np
 import torch
@@ -203,6 +204,9 @@ def get_mean_std_dict_for_model(config, train_dset):
 
 
 def main(argv):
+    key = os.environ["WANDB_KEY_FED"]
+    wandb.login(key=key)
+    wandb.init()
     config = FLAGS.config
     if FLAGS.override_kwargs:
         overwride_with_cmd_params(config, json.loads(FLAGS.override_kwargs))
