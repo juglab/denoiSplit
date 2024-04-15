@@ -601,7 +601,7 @@ class LadderVAE(pl.LightningModule):
 
         # Log likelihood
         ll, like_dict = likelihood_obj(reconstruction, target)
-        ll = self._get_weighted_likelihood(ll)
+        ll = self._get_weighted_likelihood(ll) # for multichannel images (e.g, usplit)
         if self.skip_nboundary_pixels_from_loss is not None and self.skip_nboundary_pixels_from_loss > 0:
             pad = self.skip_nboundary_pixels_from_loss
             ll = ll[:, :, pad:-pad, pad:-pad]
