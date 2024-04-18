@@ -1,5 +1,12 @@
 """
-Here, we define the calibration metric. This metric measures the calibration of the model's predictions. A model is well-calibrated if the predicted probabilities are close to the true probabilities. We use the Expected Calibration Error (ECE) to measure the calibration of the model. The ECE is defined as the expected value of the difference between the predicted and true probabilities, where the expectation is taken over the bins of the predicted probabilities. The ECE is a scalar value that ranges from 0 to 1, where 0 indicates perfect calibration and 1 indicates the worst calibration. We also provide a function to plot the reliability diagram, which is a visual representation of the calibration of the model.
+Here, we define the calibration metric. This metric measures the calibration of the model's predictions.
+A model is well-calibrated if the predicted probabilities are close to the true probabilities. 
+We use the Expected Calibration Error (ECE) to measure the calibration of the model. 
+The ECE is defined as the expected value of the difference between the predicted and true probabilities, 
+where the expectation is taken over the bins of the predicted probabilities. 
+The ECE is a scalar value that ranges from 0 to 1, where 0 indicates perfect calibration and 1 indicates 
+the worst calibration. We also provide a function to plot the reliability diagram, which is a visual 
+representation of the calibration of the model.
 """
 import math
 
@@ -46,7 +53,6 @@ class Calibration:
             pred_ch = pred[..., ch_idx]
             logvar_ch = pred_logvar[..., ch_idx]
             std_ch = self.logvar_to_std(logvar_ch)
-            print(std_ch.shape)
             target_ch = target[..., ch_idx]
             if self._mode == 'pixelwise':
                 boundaries = self.compute_bin_boundaries(logvar_ch)
@@ -55,7 +61,7 @@ class Calibration:
                 bin_matrix = bin_matrix.reshape(std_ch.shape)
                 stats[ch_idx]['bin_matrix'] = bin_matrix
                 error = (pred_ch - target_ch)**2
-                for bin_idx in range(self._bins):
+                for bin_idx in range(1, self._bins + 1):
                     bin_mask = bin_matrix == bin_idx
                     bin_error = error[bin_mask]
                     bin_size = np.sum(bin_mask)
