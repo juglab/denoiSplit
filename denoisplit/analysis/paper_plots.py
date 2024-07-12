@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -111,6 +112,19 @@ def get_predictions(idx, val_dset, model, mmse_count=50, patch_size=256):
     return inp, tar, recon_img_list
 
 
+def get_full_input_frame(idx, dset):
+    img_tuples, noise_tuples = dset._load_img(idx)
+    if len(noise_tuples) > 0:
+        factor = np.sqrt(2) if dset._input_is_sum else 1.0
+        img_tuples = [x + noise_tuples[0] * factor for x in img_tuples]
+
+    inp = 0
+    for nch in img_tuples:
+        inp += nch / len(img_tuples)
+    h_start, w_start = dset._get_deterministic_hw(idx)
+    return torch.Tensor(inp), (h_start, w_start)
+
+
 def show_for_one(idx,
                  val_dset,
                  highsnr_val_dset,
@@ -119,21 +133,48 @@ def show_for_one(idx,
                  mmse_count=5,
                  patch_size=256,
                  num_samples=2,
-                 baseline_preds=None):
+                 baseline_preds=None,
+                 show_full_input=False):
     highsnr_val_dset.set_img_sz(patch_size, 64)
     highsnr_val_dset.disable_noise()
     _, tar_hsnr = highsnr_val_dset[idx]
     inp, tar, recon_img_list = get_predictions(idx, val_dset, model, mmse_count=mmse_count, patch_size=patch_size)
+    input_location = None
+    full_input_frame = None
+    if show_full_input:
+        full_input_frame, input_location = get_full_input_frame(idx, val_dset)
+        print(full_input_frame.shape)
+
     plot_crops(inp,
                tar,
                tar_hsnr,
                recon_img_list,
                calibration_stats,
                num_samples=num_samples,
-               baseline_preds=baseline_preds)
+               baseline_preds=baseline_preds,
+               full_input_frame=full_input_frame,
+               input_location=input_location)
 
 
-def plot_crops(inp, tar, tar_hsnr, recon_img_list, calibration_stats, num_samples=2, baseline_preds=None):
+def plot_crops(inp,
+               tar,
+               tar_hsnr,
+               recon_img_list,
+               calibration_stats,
+               num_samples=2,
+               baseline_preds=None,
+               full_input_frame=None,
+               input_location=None):
+    """
+    Args:
+    input_loctation: for the
+    """
+    inset_rect = [0.05, 0.05, 0.4, 0.2]
+    color_ch_list = ['goldenrod', 'cyan']
+    inset_min_labelsize = 10
+    insetplot_xmax_value = None
+    insetplot_xmin_value = None
+
     if baseline_preds is None:
         baseline_preds = []
     if len(baseline_preds) > 0:
@@ -144,12 +185,6 @@ def plot_crops(inp, tar, tar_hsnr, recon_img_list, calibration_stats, num_sample
                 )
                 print('This happens when we want to predict the edges of the image.')
                 return
-    color_ch_list = ['goldenrod', 'cyan']
-    color_pred = 'red'
-    insetplot_xmax_value = 10000
-    insetplot_xmin_value = -1000
-    inset_min_labelsize = 10
-    inset_rect = [0.05, 0.05, 0.4, 0.2]
 
     img_sz = 3
     ncols = num_samples + len(baseline_preds) + 1 + 1 + 1 + 1 + 1 * (num_samples > 1)
@@ -172,6 +207,19 @@ def plot_crops(inp, tar, tar_hsnr, recon_img_list, calibration_stats, num_sample
             print(tar_hsnr.shape, baseline_preds[i - 2].shape)
             psnr = get_psnr_str(tar_hsnr, baseline_preds[i - 2], col_idx)
             ax_temp.imshow(baseline_preds[i - 2][col_idx], cmap='magma')
+            inset_ax = add_pixel_kde(
+                ax_temp,
+                inset_rect,
+                [tar_hsnr[col_idx], baseline_preds[i - 2][col_idx]],
+                inset_min_labelsize,
+                label_list=['NoisyCh1', 'Ch1'],
+                #   plot_kwargs_list=[{'linestyle':'--'}, {}],
+                color_list=[color_ch_list[col_idx], 'red'],
+                plot_xmax_value=insetplot_xmax_value,
+                plot_xmin_value=insetplot_xmin_value)
+            inset_ax.set_xticks([])
+            inset_ax.set_yticks([])
+
             add_psnr_str(ax_temp, psnr)
             clean_ax(ax_temp)
 
@@ -184,19 +232,19 @@ def plot_crops(inp, tar, tar_hsnr, recon_img_list, calibration_stats, num_sample
             psnr = get_psnr_str(tar_hsnr, recon_img_list[i - sample_start_idx], col_idx)
             ax_temp.imshow(recon_img_list[i - sample_start_idx][col_idx], cmap='magma')
             add_psnr_str(ax_temp, psnr)
+            inset_ax = add_pixel_kde(
+                ax_temp,
+                inset_rect,
+                [tar_hsnr[col_idx], recon_img_list[i - sample_start_idx][col_idx]],
+                inset_min_labelsize,
+                label_list=['NoisyCh1', 'Ch1'],
+                #   plot_kwargs_list=[{'linestyle':'--'}, {}],
+                color_list=[color_ch_list[col_idx], 'red'],
+                plot_xmax_value=insetplot_xmax_value,
+                plot_xmin_value=insetplot_xmin_value)
+            inset_ax.set_xticks([])
+            inset_ax.set_yticks([])
             clean_ax(ax_temp)
-            # inset_ax = add_pixel_kde(ax_temp,
-            #                       inset_rect,
-            #                       [tar_hsnr[col_idx],
-            #                        recon_img_list[i - sample_start_idx][col_idx]],
-            #                       inset_min_labelsize,
-            #                       label_list=['', ''],
-            #                       color_list=[color_ch_list[col_idx], color_pred],
-            #                       plot_xmax_value=insetplot_xmax_value,
-            #                       plot_xmin_value=insetplot_xmin_value)
-
-            # inset_ax.set_xticks([])
-            # inset_ax.set_yticks([])
 
     # difference image
     if num_samples > 1:
@@ -212,78 +260,79 @@ def plot_crops(inp, tar, tar_hsnr, recon_img_list, calibration_stats, num_sample
                                      c0_extra + (ncols - 2) * grid_img_sz:(ncols - 1) * grid_img_sz + c0_extra])
         psnr = get_psnr_str(tar_hsnr, recon_img_list.mean(axis=0), col_idx)
         ax_temp.imshow(recon_img_list.mean(axis=0)[col_idx], cmap='magma')
-        add_psnr_str(ax_temp, psnr)
-        # inset_ax = add_pixel_kde(ax_temp,
-        #                           inset_rect,
-        #                           [tar_hsnr[col_idx],
-        #                            recon_img_list.mean(axis=0)[col_idx]],
-        #                           inset_min_labelsize,
-        #                           label_list=['', ''],
-        #                           color_list=[color_ch_list[col_idx], color_pred],
-        #                           plot_xmax_value=insetplot_xmax_value,
-        #                           plot_xmin_value=insetplot_xmin_value)
-        # inset_ax.set_xticks([])
-        # inset_ax.set_yticks([])
+        inset_ax = add_pixel_kde(
+            ax_temp,
+            inset_rect,
+            [tar_hsnr[col_idx], recon_img_list.mean(axis=0)[col_idx]],
+            inset_min_labelsize,
+            label_list=['NoisyCh1', 'Ch1'],
+            #   plot_kwargs_list=[{'linestyle':'--'}, {}],
+            color_list=[color_ch_list[col_idx], 'red'],
+            plot_xmax_value=insetplot_xmax_value,
+            plot_xmin_value=insetplot_xmin_value)
+        inset_ax.set_xticks([])
+        inset_ax.set_yticks([])
 
+        add_psnr_str(ax_temp, psnr)
         clean_ax(ax_temp)
 
         ax_temp = fig.add_subplot(gs[col_idx * grid_img_sz:grid_img_sz * (col_idx + 1),
                                      (ncols - 1) * grid_img_sz + 2 * c0_extra:(ncols) * grid_img_sz + 2 * c0_extra])
         ax_temp.imshow(tar_hsnr[col_idx], cmap='magma')
-        if col_idx == 0:
-            legend_ch1_ax = ax_temp
-        if col_idx == 1:
-            legend_ch2_ax = ax_temp
-
-        # inset_ax = add_pixel_kde(ax_temp,
-        #                           inset_rect,
-        #                           [tar_hsnr[col_idx],
-        #                            ],
-        #                           inset_min_labelsize,
-        #                           label_list=[''],
-        #                           color_list=[color_ch_list[col_idx]],
-        #                           plot_xmax_value=insetplot_xmax_value,
-        #                           plot_xmin_value=insetplot_xmin_value)
-        # inset_ax.set_xticks([])
-        # inset_ax.set_yticks([])
-
+        inset_ax = add_pixel_kde(ax_temp,
+                                 inset_rect, [tar_hsnr[col_idx]],
+                                 inset_min_labelsize,
+                                 label_list=[''],
+                                 color_list=[color_ch_list[col_idx]],
+                                 plot_xmax_value=insetplot_xmax_value,
+                                 plot_xmin_value=insetplot_xmin_value)
+        inset_ax.set_xticks([])
+        inset_ax.set_yticks([])
         clean_ax(ax_temp)
 
-        ax_temp = fig.add_subplot(gs[col_idx * grid_img_sz:grid_img_sz * (col_idx + 1), grid_img_sz:2 * grid_img_sz])
+        ax_temp = fig.add_subplot(gs[col_idx * grid_img_sz:grid_img_sz * (col_idx + 1),
+                                     grid_img_sz + c0_extra:2 * grid_img_sz + c0_extra])
         ax_temp.imshow(tar[0, col_idx].cpu().numpy(), cmap='magma')
-        # inset_ax = add_pixel_kde(ax_temp,
-        #                           inset_rect,
-        #                           [tar[0,col_idx].cpu().numpy(),
-        #                            ],
-        #                           inset_min_labelsize,
-        #                           label_list=[''],
-        #                           color_list=[color_ch_list[col_idx]],
-        #                           plot_kwargs_list=[{'linestyle':'--'}],
-        #                           plot_xmax_value=insetplot_xmax_value,
-        #                           plot_xmin_value=insetplot_xmin_value)
-
-        # inset_ax.set_xticks([])
-        # inset_ax.set_yticks([])
-
         clean_ax(ax_temp)
-
-    ax_temp = fig.add_subplot(gs[0:grid_img_sz, 0:grid_img_sz])
-    ax_temp.imshow(inp[0, 0].cpu().numpy(), cmap='magma')
-    clean_ax(ax_temp)
-    import matplotlib.lines as mlines
-
-    # line_ch1 = mlines.Line2D([0, 1], [0, 1], color=color_ch_list[0], linestyle='-', label='$C_1$')
-    # line_ch2 = mlines.Line2D([0, 1], [0, 1], color=color_ch_list[1], linestyle='-', label='$C_2$')
-    # line_pred = mlines.Line2D([0, 1], [0, 1], color=color_pred, linestyle='-', label='Pred')
-    # line_noisych1 = mlines.Line2D([0, 1], [0, 1], color=color_ch_list[0], linestyle='--', label='$C^N_1$')
-    # line_noisych2 = mlines.Line2D([0, 1], [0, 1], color=color_ch_list[1], linestyle='--', label='$C^N_2$')
-    # legend_ch1 = legend_ch1_ax.legend(handles=[line_ch1, line_noisych1, line_pred], loc='upper right', frameon=False, labelcolor='white',
-    #                         prop={'size': 11})
-    # legend_ch2 = legend_ch2_ax.legend(handles=[line_ch2, line_noisych2, line_pred], loc='upper right', frameon=False, labelcolor='white',
-    #                             prop={'size': 11})
 
     if calibration_stats is not None:
+
+        ax_temp = fig.add_subplot(gs[0:grid_img_sz, 0:grid_img_sz])
+        ax_temp.imshow(inp[0, 0].cpu().numpy(), cmap='magma')
+        clean_ax(ax_temp)
+
+        assert full_input_frame is None
         smaller_offset = 4
         ax_temp = fig.add_subplot(gs[grid_img_sz + 1:2 * grid_img_sz - smaller_offset + 1,
                                      smaller_offset - 1:grid_img_sz - 1])
         plot_calibration(ax_temp, calibration_stats)
+    else:
+        assert full_input_frame is not None
+        ax_temp = fig.add_subplot(gs[0:grid_img_sz, 0:grid_img_sz])
+        h_s, w_s = input_location
+        # color_ch_list=['goldenrod', 'cyan']
+        rect = patches.Rectangle((w_s, h_s),
+                                 inp.shape[-1],
+                                 inp.shape[-1],
+                                 linewidth=2,
+                                 edgecolor='white',
+                                 alpha=0.5,
+                                 facecolor='none')
+        ax_temp.add_patch(rect)
+
+        ax_temp.imshow(full_input_frame[0].cpu().numpy(), cmap='magma')
+        clean_ax(ax_temp)
+
+        ax_temp = fig.add_subplot(gs[grid_img_sz:2 * grid_img_sz, 0:grid_img_sz])
+        ax_temp.imshow(inp[0, 0].cpu().numpy(), cmap='magma')
+        clean_ax(ax_temp)
+        rect = patches.Rectangle((-1, -1),
+                                 inp.shape[-1],
+                                 inp.shape[-1],
+                                 linewidth=8,
+                                 edgecolor='white',
+                                 alpha=0.5,
+                                 facecolor='none')
+        ax_temp.add_patch(rect)
+
+        # full input.

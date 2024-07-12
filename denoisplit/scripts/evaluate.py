@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import ml_collections
+from denoisplit.metrics.CARE_normalization import normalize_CARE, normalize_minmse
 from denoisplit.analysis.critic_notebook_utils import get_label_separated_loss, get_mmse_dict
 from denoisplit.analysis.lvae_utils import get_img_from_forward_output
 from denoisplit.analysis.mmse_prediction import get_dset_predictions
@@ -39,8 +40,9 @@ from denoisplit.training import create_dataset, create_model
 from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
 
 torch.multiprocessing.set_sharing_strategy('file_system')
-DATA_ROOT = 'PUT THE ROOT DIRECTORY FOR THE DATASET HERE'
+DATA_ROOT = '/group/jug/ashesh/data/'
 CODE_ROOT = 'PUT THE ROOT DIRECTORY FOR THE CODE HERE'
+OUTPUT_DIR = os.path.expanduser('/group/jug/ashesh/data/paper_stats/')
 
 
 def compute_multiscale_ssim(highres_data_, pred_):
@@ -125,7 +127,7 @@ def compute_max_val(data, config):
         return np.quantile(data, config.data.clip_percentile)
 
 
-def compute_high_snr_stats(config, highres_data, pred_unnorm):
+def compute_high_snr_stats(config, highres_data, pred_unnorm, verbose=True):
     """
     last dimension is the channel dimension
     """
@@ -135,10 +137,9 @@ def compute_high_snr_stats(config, highres_data, pred_unnorm):
         for i in range(highres_data.shape[-1])
     ]
     ssim_list = compute_multiscale_ssim(highres_data.copy(), pred_unnorm.copy())
-    # ssim1_hres_mean, ssim1_hres_std = avg_ssim(highres_data[..., 0], pred_unnorm[0])
-    # ssim2_hres_mean, ssim2_hres_std = avg_ssim(highres_data[..., 1], pred_unnorm[1])
-    print('PSNR on Highres', psnr_list)
-    print('Multiscale SSIM on Highres', [np.round(ssim, 3) for ssim in ssim_list])
+    if verbose:
+        print('PSNR on Highres', psnr_list)
+        print('Multiscale SSIM on Highres', [np.round(ssim, 3) for ssim in ssim_list])
     return {'rangeinvpsnr': psnr_list, 'ms_ssim': ssim_list}
 
 
@@ -347,7 +348,9 @@ def main(
             if val_repeat_factor is not None:
                 config.training.val_repeat_factor = val_repeat_factor
             config.model.mode_pred = not compute_kl_loss
-
+        if config.model.noise_model_ch1_fpath is not None:
+            config.model.noise_model_ch1_fpath = config.model.noise_model_ch1_fpath.replace('/home/ashesh.ashesh/training/', "/group/jug/ashesh/training_pre_eccv/")
+            config.model.noise_model_ch2_fpath = config.model.noise_model_ch2_fpath.replace('/home/ashesh.ashesh/training/', "/group/jug/ashesh/training_pre_eccv/")
     print(config)
     with config.unlocked():
         config.model.skip_nboundary_pixels_from_loss = None
@@ -602,8 +605,10 @@ def main(
         print()
     # highres data
     else:
-        highres_data = ignore_pixels(highres_data)
-        highres_data = (highres_data - sep_mean.cpu().numpy()) / sep_std.cpu().numpy()
+        highres_data_raw = ignore_pixels(highres_data)
+        sep_std = torch.Tensor(np.array([highres_data_raw[...,0].std(), highres_data_raw[...,1].std()]).reshape(sep_std.shape))
+        sep_mean = torch.Tensor(np.array([highres_data_raw[...,0].mean(), highres_data_raw[...,1].mean()]).reshape(sep_mean.shape))
+        highres_data = (highres_data_raw - sep_mean.cpu().numpy()) / sep_std.cpu().numpy()
         # for denoiser, we don't need both channels.
         if config.model.model_type == ModelType.Denoiser:
             if model.denoise_channel == 'Ch1':
@@ -618,6 +623,21 @@ def main(
         output_stats = {}
         output_stats['rangeinvpsnr'] = stats_dict['rangeinvpsnr']
         output_stats['ms_ssim'] = stats_dict['ms_ssim']
+        CARE_gt = []
+        CARE_pred = []
+        for ch_idx in range(highres_data.shape[-1]):
+            CARE_gt_ch = [normalize_CARE(highres_data[i,...,ch_idx]) for i in range(len(highres_data))]
+            CARE_pred_ch = [normalize_minmse(pred[i,...,ch_idx], CARE_gt_ch[i]) for i in range(len(pred))]
+            CARE_gt_ch = np.stack(CARE_gt_ch)
+            CARE_pred_ch = np.stack(CARE_pred_ch)
+            CARE_gt.append(CARE_gt_ch[...,None])
+            CARE_pred.append(CARE_pred_ch[...,None])
+        
+        CARE_gt = np.concatenate(CARE_gt, axis=-1)
+        CARE_pred = np.concatenate(CARE_pred, axis=-1)
+        CARE_stats_dict = compute_high_snr_stats(config, CARE_gt, CARE_pred, verbose=False)
+        print('CARE-MS-SSIM on Highres', [np.round(ssim, 3) for ssim in CARE_stats_dict['ms_ssim']])
+        output_stats['CARE_ms_ssim'] = CARE_stats_dict['ms_ssim']
         print('')
     return output_stats, pred_unnorm
 
@@ -651,7 +671,10 @@ def save_hardcoded_ckpt_evaluations_to_file(normalized_ssim=True,
                                             mmse_count=1,
                                             predict_kth_frame=None):
     ckpt_dirs = [
-        '/home/ashesh.ashesh/training/disentangle/2402/D7-M3-S0-L0/82',
+        # '/group/jug/ashesh/training_pre_eccv/disentangle/2402/D7-M3-S0-L0/106',
+        # '/group/jug/ashesh/training_pre_eccv/disentangle/2402/D7-M3-S0-L0/108',
+        # '/group/jug/ashesh/training_pre_eccv/disentangle/2403/D23-M3-S0-L0/10',
+        '/group/jug/ashesh/training_pre_eccv/disentangle/2402/D7-M3-S0-L0/82',
         # '/home/ashesh.ashesh/training/disentangle/2403/D16-M3-S0-L0/103',
         # '/home/ashesh.ashesh/training/disentangle/2403/D16-M3-S0-L0/104',
         # '/home/ashesh.ashesh/training/disentangle/2403/D16-M3-S0-L0/105',
@@ -720,12 +743,13 @@ def save_hardcoded_ckpt_evaluations_to_file(normalized_ssim=True,
         # '/home/ashesh.ashesh/training/disentangle/2403/D16-M3-S0-L0/54',
         # '/home/ashesh.ashesh/training/disentangle/2403/D16-M3-S0-L0/50',
     ]
-    if ckpt_dirs[0].startswith('/home/ashesh.ashesh'):
-        OUTPUT_DIR = os.path.expanduser('/group/jug/ashesh/data/paper_stats/')
-    elif ckpt_dirs[0].startswith('/home/ubuntu/ashesh'):
-        OUTPUT_DIR = os.path.expanduser('~/data/paper_stats/')
-    else:
-        raise Exception('Invalid server')
+    # if ckpt_dirs[0].startswith('/home/ashesh.ashesh'):
+    #     OUTPUT_DIR = os.path.expanduser('/group/jug/ashesh/data/paper_stats/')
+    # elif ckpt_dirs[0].startswith('/home/ubuntu/ashesh'):
+    #     OUTPUT_DIR = os.path.expanduser('~/data/paper_stats/')
+    # else:
+    #     OUTPUT_DIR = os.path.expanduser('/group/jug/ashesh/data/paper_stats/')
+        # raise Exception('Invalid server')
 
     ckpt_dirs = [x[:-1] if '/' == x[-1] else x for x in ckpt_dirs]
 
