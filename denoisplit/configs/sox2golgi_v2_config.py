@@ -13,7 +13,7 @@ from denoisplit.data_loader.multifile_raw_dloader import SubDsetType
 def get_config():
     config = get_default_config()
     data = config.data
-    data.image_size = 128
+    data.image_size = 512
     data.data_type = DataType.TavernaSox2GolgiV2
     data.subdset_type = SubDsetType.MultiChannel
     # all channels: ['555-647', 'GT_Cy5', 'GT_TRITC']
@@ -115,14 +115,14 @@ def get_config():
     training = config.training
     training.lr = 0.001 / 2
     training.lr_scheduler_patience = 30
-    training.max_epochs = 200
-    training.batch_size = 32
+    training.max_epochs = 400
+    training.batch_size = 8
     training.num_workers = 4
     training.val_repeat_factor = None
     training.train_repeat_factor = None
     training.val_fraction = 0.1
     training.test_fraction = 0.1
-    training.earlystop_patience = 100
+    training.earlystop_patience = 200
     # training.precision = 16
 
     return config
