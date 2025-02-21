@@ -4,7 +4,7 @@ import torch
 import ml_collections
 from denoisplit.core.data_split_type import DataSplitType
 from denoisplit.data_loader.lc_multich_dloader import LCMultiChDloader
-from denoisplit.data_loader.patch_index_manager import GridIndexManager
+from denoisplit.data_loader.patch_index_manager import TileIndexManager
 from denoisplit.data_loader.pavia2_enums import Pavia2BleedthroughType
 from denoisplit.data_loader.pavia2_rawdata_loader import Pavia2DataSetChannels, Pavia2DataSetType
 from denoisplit.data_loader.vanilla_dloader import MultiChDloader
@@ -157,7 +157,7 @@ class Pavia2V1Dloader:
         if self._dloader_bleedthrough is not None:
             self._dloader_bleedthrough.set_img_sz(image_size, grid_size, alignment=alignment)
 
-        self.idx_manager = GridIndexManager(self.get_data_shape(), self._grid_sz, self._img_sz, alignment)
+        self.idx_manager = TileIndexManager(self.get_data_shape(), self._grid_sz, self._img_sz, alignment)
 
     def get_mean_std(self):
         """

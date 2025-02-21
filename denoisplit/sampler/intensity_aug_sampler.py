@@ -118,15 +118,15 @@ class IntensityAugSampler(Sampler):
 
 
 if __name__ == '__main__':
-    from denoisplit.data_loader.patch_index_manager import GridAlignement, GridIndexManager
+    from denoisplit.data_loader.patch_index_manager import TilingMode, TileIndexManager
     grid_size = 1
     patch_size = 64
-    grid_alignment = GridAlignement.LeftTop
+    grid_alignment = TilingMode.TrimBoundary
 
     class DummyDset:
 
         def __init__(self) -> None:
-            self.idx_manager = GridIndexManager((6, 2400, 2400, 2), grid_size, patch_size, grid_alignment)
+            self.idx_manager = TileIndexManager((6, 2400, 2400, 2), grid_size, patch_size, grid_alignment)
 
     ch1_alpha_interval_count = 30
     data_size = 1000

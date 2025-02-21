@@ -4,7 +4,7 @@ from denoisplit.core.data_split_type import DataSplitType
 from denoisplit.core.data_type import DataType
 from denoisplit.core.empty_patch_fetcher import EmptyPatchFetcher
 from denoisplit.data_loader.lc_multich_dloader import LCMultiChDloader
-from denoisplit.data_loader.patch_index_manager import GridAlignement, GridIndexManager
+from denoisplit.data_loader.patch_index_manager import TilingMode, TileIndexManager
 from denoisplit.data_loader.train_val_data import get_train_val_data
 from denoisplit.data_loader.vanilla_dloader import MultiChDloader
 
@@ -27,7 +27,7 @@ class SingleFileLCDset(LCMultiChDloader):
                  allow_generation: bool = False,
                  lowres_supervision=None,
                  max_val=None,
-                 grid_alignment=GridAlignement.LeftTop,
+                 grid_alignment=TilingMode.TrimBoundary,
                  overlapping_padding_kwargs=None,
                  print_vars=True):
         self._preloaded_data = preloaded_data
@@ -76,7 +76,7 @@ class SingleFileDset(MultiChDloader):
                  use_one_mu_std=None,
                  allow_generation=False,
                  max_val=None,
-                 grid_alignment=GridAlignement.LeftTop,
+                 grid_alignment=TilingMode.TrimBoundary,
                  overlapping_padding_kwargs=None,
                  print_vars=True):
         self._preloaded_data = preloaded_data
@@ -127,7 +127,7 @@ class MultiFileDset:
                  enable_random_cropping: bool = False,
                  use_one_mu_std=None,
                  max_val=None,
-                 grid_alignment=GridAlignement.LeftTop,
+                 grid_alignment=TilingMode.TrimBoundary,
                  padding_kwargs=None,
                  overlapping_padding_kwargs=None):
 

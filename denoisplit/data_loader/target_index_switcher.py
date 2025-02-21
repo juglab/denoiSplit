@@ -145,7 +145,7 @@ if __name__ == '__main__':
     import pandas as pd
 
     from denoisplit.configs.biosr_sparsely_supervised_config import get_config
-    from denoisplit.data_loader.patch_index_manager import GridAlignement, GridIndexManager
+    from denoisplit.data_loader.patch_index_manager import TilingMode, TileIndexManager
 
     config = get_config()
     data_shape = (15, 499, 499, 2)
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
     grid_size = config.data.grid_size
     patch_size = config.data.image_size
-    manager = GridIndexManager(data_shape, grid_size, patch_size, GridAlignement.LeftTop)
+    manager = TileIndexManager(data_shape, grid_size, patch_size, TilingMode.TrimBoundary)
     switcher = IndexSwitcher(manager, config.data, patch_size)
 
     valid_target = []

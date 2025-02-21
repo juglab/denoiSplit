@@ -1,13 +1,13 @@
 import numpy as np
 
-from denoisplit.data_loader.patch_index_manager import GridAlignement, GridIndexManager
+from denoisplit.data_loader.patch_index_manager import TilingMode, TileIndexManager
 from denoisplit.sampler.default_grid_sampler import DefaultGridSampler
 
 
 class DummyDset:
 
     def __init__(self, data_shape, image_size) -> None:
-        self.idx_manager = GridIndexManager(data_shape, image_size, image_size, GridAlignement.LeftTop)
+        self.idx_manager = TileIndexManager(data_shape, image_size, image_size, TilingMode.TrimBoundary)
 
     def __len__(self):
         return self.idx_manager.grid_count()

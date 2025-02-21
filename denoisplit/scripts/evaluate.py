@@ -32,7 +32,7 @@ from denoisplit.core.model_type import ModelType
 from denoisplit.core.psnr import PSNR, RangeInvariantPsnr
 from denoisplit.core.tiff_reader import load_tiff
 from denoisplit.data_loader.lc_multich_dloader import LCMultiChDloader
-from denoisplit.data_loader.patch_index_manager import GridAlignement
+from denoisplit.data_loader.patch_index_manager import TilingMode
 # from denoisplit.data_loader.two_tiff_rawdata_loader import get_train_val_data
 from denoisplit.data_loader.vanilla_dloader import MultiChDloader, get_train_val_data
 from denoisplit.sampler.random_sampler import RandomSampler
@@ -358,7 +358,7 @@ def main(
     ## Disentanglement setup.
     ####
     ####
-    grid_alignment = GridAlignement.Center
+    grid_alignment = TilingMode.ShiftBoundary
     if image_size_for_grid_centers is not None:
         old_grid_size = config.data.get('grid_size', "grid_size not present")
         with config.unlocked():

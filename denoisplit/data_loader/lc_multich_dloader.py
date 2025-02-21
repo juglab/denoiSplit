@@ -8,7 +8,7 @@ from skimage.transform import resize
 
 from denoisplit.core.data_split_type import DataSplitType
 from denoisplit.core.data_type import DataType
-from denoisplit.data_loader.patch_index_manager import GridAlignement
+from denoisplit.data_loader.patch_index_manager import TilingMode
 from denoisplit.data_loader.vanilla_dloader import MultiChDloader
 
 
@@ -30,7 +30,7 @@ class LCMultiChDloader(MultiChDloader):
         allow_generation: bool = False,
         lowres_supervision=None,
         max_val=None,
-        grid_alignment=GridAlignement.LeftTop,
+        grid_alignment=TilingMode.ShiftBoundary,
         overlapping_padding_kwargs=None,
         print_vars=True,
     ):
@@ -92,10 +92,11 @@ class LCMultiChDloader(MultiChDloader):
             idx = index
         else:
             idx, _ = index
-        imgs = self._scaled_data[scaled_index][idx % self.N]
+        t_idx = self.idx_manager.get_patch_location_from_dataset_idx(idx)[0]
+        imgs = self._scaled_data[scaled_index][t_idx]
         imgs = tuple([imgs[None, :, :, i] for i in range(imgs.shape[-1])])
         if self._noise_data is not None:
-            noisedata = self._scaled_noise_data[scaled_index][idx % self.N]
+            noisedata = self._scaled_noise_data[scaled_index][t_idx]
             noise = tuple([noisedata[None, :, :, i] for i in range(noisedata.shape[-1])])
             factor = np.sqrt(2) if self._input_is_sum else 1.0
             # since we are using this lowres images for just the input, we need to add the noise of the input.
@@ -209,7 +210,7 @@ if __name__ == '__main__':
                             num_scales=config.data.multiscale_lowres_count,
                             max_val=None,
                             padding_kwargs=padding_kwargs,
-                            grid_alignment=GridAlignement.LeftTop,
+                            grid_alignment=TilingMode.ShiftBoundary,
                             overlapping_padding_kwargs=None)
 
     mean, std = dset.compute_mean_std()

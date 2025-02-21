@@ -8,7 +8,7 @@ import enum
 from typing import Union, Tuple
 import numpy as np
 
-from denoisplit.data_loader.patch_index_manager import GridIndexManager, GridAlignement
+from denoisplit.data_loader.patch_index_manager import TileIndexManager, TilingMode
 from denoisplit.core import data_split_type
 from denoisplit.core.data_split_type import DataSplitType
 from denoisplit.data_loader.single_channel.single_channel_dloader import SingleChannelDloader
@@ -113,10 +113,10 @@ class SingleChannelMultiDatasetDloader:
         for i, dset in enumerate(self._dsets):
             dset.set_mean_std(mean_val[i], std_val[i])
 
-    def set_img_sz(self, image_size, grid_size, alignment=GridAlignement.LeftTop):
+    def set_img_sz(self, image_size, grid_size, alignment=TilingMode.TrimBoundary):
         self._img_sz = image_size
         self._grid_sz = grid_size
-        self.idx_manager = GridIndexManager(self.get_data_shape(), self._grid_sz, self._img_sz, alignment)
+        self.idx_manager = TileIndexManager(self.get_data_shape(), self._grid_sz, self._img_sz, alignment)
         for dset in self._dsets:
             dset.set_img_sz(image_size, grid_size, alignment=alignment)
 
