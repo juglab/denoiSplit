@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-
+import sys; sys.path.append('/home/ashesh.ashesh/code/denoiSplit')
 from denoisplit.core.data_split_type import DataSplitType, get_datasplit_tuples
 from denoisplit.core.tiff_reader import load_tiff
 from denoisplit.data_loader.read_mrc import read_mrc
@@ -55,10 +55,10 @@ def get_train_val_data(dirname, data_config, datasplit_type, val_fraction, test_
 if __name__ == '__main__':
     from ml_collections.config_dict import ConfigDict
     data_config = ConfigDict()
-    data_config.num_channels = 3
-    data_config.ch1_fname = 'CCPs/GT_all.mrc'
+    data_config.num_channels = 2
+    data_config.ch1_fname = 'Microtubules/GT_all.mrc'#'CCPs/GT_all.mrc'
     data_config.ch2_fname = 'ER/GT_all.mrc'
-    data_config.ch3_fname = 'Microtubules/GT_all.mrc'
+
     datadir = '/group/jug/ashesh/data/BioSR/'
     data = get_train_val_data(datadir, data_config, DataSplitType.Train, val_fraction=0.1, test_fraction=0.1)
     print(data.shape)

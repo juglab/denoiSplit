@@ -57,7 +57,7 @@ def get_config():
 
     loss = config.loss
     loss.loss_type = LossType.Elbo
-    loss.kl_loss_formulation = 'usplit'
+    loss.kl_loss_formulation = ''
     # loss.mixed_rec_weight = 1
 
     loss.kl_weight = 1.0
@@ -108,9 +108,9 @@ def get_config():
     model.multiscale_retain_spatial_dims = True
     model.monitor = 'val_psnr'  # {'val_loss','val_psnr'}
     model.non_stochastic_version = True
-    model.enable_noise_model = False
-    model.noise_model_ch1_fpath = None
-    model.noise_model_ch1_fpath = None
+    model.enable_noise_model = True
+    model.noise_model_ch1_fpath = '/group/jug/ashesh/training/noise_model/2404/112/GMMNoiseModel_N2V_data-sox2golgiv2_GT_Cy5__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
+    model.noise_model_ch1_fpath = '/group/jug/ashesh/training/noise_model/2404/113/GMMNoiseModel_N2V_data-sox2golgiv2_GT_TRITC__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
 
     training = config.training
     training.lr = 0.001 / 2

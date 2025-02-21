@@ -294,6 +294,7 @@ def main(argv):
 
 
 if __name__ == '__main__':
+    # python denoisplit/scripts/run.py --config=denoisplit/configs/hagen_usplit_config.py --workdir=/group/jug/ashesh/training/ --mode=train --datadir=/group/jug/ashesh/data/ventura_gigascience
     print(socket.gethostname(), datetime.now().strftime("%y-%m-%d-%H:%M:%S"))
     print('Python version', sys.version)
     print('CUDA_HOME', CUDA_HOME)
