@@ -8,23 +8,23 @@ from denoisplit.core.sampler_type import SamplerType
 def get_config():
     config = get_default_config()
     data = config.data
-    data.image_size = 128
+    data.image_size = 512
     data.data_type = DataType.BioSR_MRC
     # data.channel_1 = 0
     # data.channel_2 = 1
     data.ch1_fname = 'ER/GT_all.mrc'
-    data.ch2_fname = 'CCPs/GT_all.mrc'
+    data.ch2_fname = 'Microtubules/GT_all.mrc'
     data.num_channels = 2
 
-    data.poisson_noise_factor = 1000
+    data.poisson_noise_factor = -1
 
-    data.enable_gaussian_noise = True
+    data.enable_gaussian_noise = False
     data.trainig_datausage_fraction = 1.0
     # data.validtarget_random_fraction = 1.0
     # data.training_validtarget_fraction = 0.2
-    config.data.synthetic_gaussian_scale = 5000
+    # config.data.synthetic_gaussian_scale = 5000
     # if True, then input has 'identical' noise as the target. Otherwise, noise of input is independently sampled.
-    config.data.input_has_dependant_noise = True
+    # config.data.input_has_dependant_noise = True
 
     data.sampler_type = SamplerType.DefaultSampler
     data.threshold = 0.02
@@ -96,17 +96,17 @@ def get_config():
     model.mode_pred = False
     model.var_clip_max = 20
     # predict_logvar takes one of the four values: [None,'global','channelwise','pixelwise']
-    model.predict_logvar = 'pixelwise'
+    model.predict_logvar = None#'pixelwise'
     model.logvar_lowerbound = -5  # -2.49 is log(1/12), from paper "Re-parametrizing VAE for stablity."
     model.multiscale_lowres_separate_branch = False
     model.multiscale_retain_spatial_dims = True
     model.monitor = 'val_loss'  # {'val_loss','val_psnr'}
 
-    model.enable_noise_model = False
+    model.enable_noise_model = True
     model.noise_model_type = 'gmm'
-    fname = '/home/ashesh.ashesh/training/noise_model/2403/139/GMMNoiseModel_BioSR-__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
-    model.noise_model_ch1_fpath = fname
-    model.noise_model_ch2_fpath = fname
+    # fname = '/home/ashesh.ashesh/training/noise_model/2403/139/GMMNoiseModel_BioSR-__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
+    model.noise_model_ch1_fpath = '/group/jug/ashesh/training/noise_model/2502/5/GMMNoiseModel_ER-GT_all__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
+    model.noise_model_ch2_fpath = '/group/jug/ashesh/training/noise_model/2502/6/GMMNoiseModel_Microtubules-GT_all__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
     model.noise_model_learnable = False
     assert model.enable_noise_model == False or model.predict_logvar is None
 
@@ -118,7 +118,7 @@ def get_config():
     training.lr = 0.001
     training.lr_scheduler_patience = 30
     training.max_epochs = 400
-    training.batch_size = 32
+    training.batch_size = 4
     training.num_workers = 4
     training.val_repeat_factor = None
     training.train_repeat_factor = None
