@@ -23,7 +23,7 @@ def get_config():
     data.sampler_type = SamplerType.DefaultSampler
     data.deterministic_grid = False
     data.normalized_input = True
-    data.clip_percentile = 0.995
+    data.clip_percentile = 1.0
     data.background_quantile = 0.0
     # With background quantile, one is setting the avg background value to 0. With this, any negative values are also set to 0.
     # This, together with correct background_quantile should altogether get rid of the background. The issue here is that
@@ -47,7 +47,7 @@ def get_config():
     data.padding_value = None
     # If this is set to True, then target channels will be normalized from their separate mean.
     # otherwise, target will be normalized just the same way as the input, which is determined by use_one_mu_std
-    data.target_separate_normalization = False
+    data.target_separate_normalization = True
 
     # This is for intensity augmentation
     # data.ch1_min_alpha = 0.4
@@ -65,7 +65,7 @@ def get_config():
     loss.kl_annealtime = 10
     loss.kl_start = -1
     loss.kl_min = 1e-7
-    loss.free_bits = 0.0
+    loss.free_bits = 1.0
     # loss.ch1_recons_w = 1
     # loss.ch2_recons_w = 5
 
@@ -107,14 +107,14 @@ def get_config():
     model.multiscale_lowres_separate_branch = False
     model.multiscale_retain_spatial_dims = True
     model.monitor = 'val_psnr'  # {'val_loss','val_psnr'}
-    model.non_stochastic_version = True
+    model.non_stochastic_version = False
     model.enable_noise_model = True
     model.noise_model_type = 'gmm'
     model.noise_model_ch1_fpath = '/group/jug/ashesh/training/noise_model/2404/112/GMMNoiseModel_N2V_data-sox2golgiv2_GT_Cy5__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
     model.noise_model_ch2_fpath = '/group/jug/ashesh/training/noise_model/2404/113/GMMNoiseModel_N2V_data-sox2golgiv2_GT_TRITC__6_4_Clip0.0-1.0_Sig0.125_UpNone_Norm0_bootstrap.npz'
 
     training = config.training
-    training.lr = 0.001 / 2
+    training.lr = 0.001 
     training.lr_scheduler_patience = 30
     training.max_epochs = 400
     training.batch_size = 4
