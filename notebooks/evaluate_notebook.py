@@ -6,7 +6,7 @@ import os
 
 
 if __name__ == '__main__':
-    # python notebooks/evaluate_notebook.py --ckpt_dir=/group/jug/ashesh/training/2502/D7-M3-S0-L0/7 --mmse_count=10 --MIXING_WEIGHT=0.1
+    # python notebooks/evaluate_notebook.py --ckpt_dir=/group/jug/ashesh/training/denoisplit/2502/D16-M3-S0-L0/5 --data_dir=/group/jug/ashesh/data/BioSR/ --mmse_count=10 --MIXING_WEIGHT=0.1
     parser = argparse.ArgumentParser(description='Run a notebook')
     parser.add_argument('--notebook', type=str, help='Notebook to run', default='/home/ashesh.ashesh/code/denoiSplit/notebooks/EvaluateWithDifferentMixingWeights.ipynb')
     parser.add_argument('--outputdir', type=str, help='Output notebook directory', default='/group/jug/ashesh/indiSplit/notebook_results_baselines/')

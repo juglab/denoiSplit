@@ -22,7 +22,8 @@ from denoisplit.data_loader.sinosoid_threecurve_dloader import train_val_data as
 from denoisplit.data_loader.sox2golgi_rawdata_loader import get_train_val_data as _loadsox2golgi
 from denoisplit.data_loader.sox2golgi_v2_rawdata_loader import get_train_val_data as _loadsox2golgi_v2
 from denoisplit.data_loader.two_tiff_rawdata_loader import get_train_val_data as _loadseparatetiff
-
+from denoisplit.core.tiff_reader import load_tiff
+import os
 
 def get_train_val_data(data_config,
                        fpath,
@@ -119,11 +120,31 @@ def get_train_val_data(data_config,
                               val_fraction=val_fraction,
                               test_fraction=test_fraction)
     elif data_config.data_type == DataType.TavernaSox2GolgiV2:
-        return _loadsox2golgi_v2(fpath,
-                                 data_config,
-                                 datasplit_type,
-                                 val_fraction=val_fraction,
-                                 test_fraction=test_fraction)
+        fname = 'train.tif'
+        subdir ='train'
+        if datasplit_type  == DataSplitType.Val:
+            fname = fname.replace('train', 'val')
+            subdir = 'val'
+        elif datasplit_type == DataSplitType.Test:
+            fname = fname.replace('train', 'test')
+            subdir = 'test'
+        fpath = os.path.join(fpath,subdir,fname)
+        data = load_tiff(fpath)
+
+        if 'keep_real_input' in data_config and data_config.keep_real_input:
+            pass
+        else:
+            # skip the input channel
+            data = data[...,:2]
+
+        print(f'Loaded {DataType.name(data_config.data_type)} data from {fpath}', data.shape)
+        return data
+
+        # return _loadsox2golgi_v2(fpath,
+        #                          data_config,
+        #                          datasplit_type,
+        #                          val_fraction=val_fraction,
+        #                          test_fraction=test_fraction)
     elif data_config.data_type == DataType.Dao3Channel:
         return _loaddao3ch(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
     elif data_config.data_type == DataType.ExpMicroscopyV2:
