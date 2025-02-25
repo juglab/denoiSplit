@@ -113,12 +113,35 @@ def get_train_val_data(data_config,
                                   test_fraction=test_fraction)
     elif data_config.data_type == DataType.BioSR_MRC:
         return _loadmrc(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
+    
     elif data_config.data_type == DataType.TavernaSox2Golgi:
         return _loadsox2golgi(fpath,
                               data_config,
                               datasplit_type,
                               val_fraction=val_fraction,
                               test_fraction=test_fraction)
+    
+    elif data_config.data_type == DataType.HTLIF24:
+        fname = 'train_500ms_Ch_B-Ch_D-Ch_BD.tif'
+        subdir ='train'
+        if datasplit_type  == DataSplitType.Val:
+            fname = fname.replace('train', 'val')
+            subdir = 'val'
+        elif datasplit_type == DataSplitType.Test:
+            fname = fname.replace('train', 'test')
+            subdir = 'test'
+
+        fpath = os.path.join(fpath,subdir,fname)
+        data = load_tiff(fpath)
+        if 'keep_real_input' in data_config and data_config.keep_real_input:
+            pass
+        else:
+            # skip the input channel
+            data = data[...,:2]
+
+        print(f'Loaded HTLIF24 data from {fpath}', data.shape)
+        return data
+
     elif data_config.data_type == DataType.TavernaSox2GolgiV2:
         fname = 'train.tif'
         subdir ='train'

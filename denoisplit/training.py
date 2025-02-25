@@ -230,6 +230,7 @@ def create_dataset(config,
             DataType.BioSR_MRC,
             DataType.PredictedTiffData,
             DataType.Pavia3SeqData,
+            DataType.HTLIF24,
     ]:
         if config.data.data_type == DataType.OptiMEM100_014:
             datapath = os.path.join(datadir, 'OptiMEM100x014.tif')

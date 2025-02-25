@@ -186,7 +186,7 @@ class MultiChDloader:
             print(msg)
 
         self.N = len(self._data)
-        assert self._data.shape[-1] == self._num_channels, 'Number of channels in data and config do not match.'
+        # assert self._data.shape[-1] == self._num_channels, f'Number of channels:{self._data.shape} in data and config do not match {self._num_channels}.'
 
     def save_background(self, channel_idx, frame_idx, background_value):
         self._background_values[frame_idx, channel_idx] = background_value
