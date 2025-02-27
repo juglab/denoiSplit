@@ -11,8 +11,8 @@ config.data = ml_collections.ConfigDict()
 config.data.data_type = DataType.SeparateTiffData
 config.data.channel_1 = 0
 config.data.channel_2 = 1
-config.data.ch1_fname = 'actin-60x-noise2-lowsnr.tif'
-config.data.ch2_fname = 'mito-60x-noise2-lowsnr.tif'
+config.data.ch1_fname = 'actin-60x-noise2-highsnr.tif'
+config.data.ch2_fname = 'mito-60x-noise2-highsnr.tif'
 
 config.training = ml_collections.ConfigDict()
 config.training.val_fraction = 0.1
