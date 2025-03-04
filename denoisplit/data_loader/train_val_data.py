@@ -121,8 +121,14 @@ def get_train_val_data(data_config,
                               val_fraction=val_fraction,
                               test_fraction=test_fraction)
     
-    elif data_config.data_type == DataType.HTLIF24:
-        fname = 'train_500ms_Ch_B-Ch_D-Ch_BD.tif'
+    elif data_config.data_type in [DataType.HTLIF24,DataType.CosemHela, DataType.CosemJrcChoroidPlexus2]:
+        if data_config.data_type == DataType.HTLIF24:
+            fname = 'train_500ms_Ch_B-Ch_D-Ch_BD.tif'
+        elif data_config.data_type == DataType.CosemJrcChoroidPlexus2:
+            fname = 'train_jrc_choroid-plexus-2_bleedthrough_er_pred_endo_pred_EGFP_Venus_R3.0-3.0_S2_D1_Ex100.0ms.tif'
+        else:
+            fname = 'train_jrc_hela-3_bleedthrough_EGFP_Venus_R3.0-3.0_S4_D1_Ex100.0ms.tif'
+
         subdir ='train'
         if datasplit_type  == DataSplitType.Val:
             fname = fname.replace('train', 'val')
@@ -139,7 +145,7 @@ def get_train_val_data(data_config,
             # skip the input channel
             data = data[...,:2]
 
-        print(f'Loaded HTLIF24 data from {fpath}', data.shape)
+        print(f'Loaded {DataType.name(data_config.data_type)} data from {fpath}', data.shape)
         return data
 
     elif data_config.data_type == DataType.TavernaSox2GolgiV2:
