@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # parser.add_argument('parameters', type=str, help='Parameters for the notebook')
     parser.add_argument('--ckpt_dir', type=str, help='Checkpoint to use. eg. /home/ashesh.ashesh/paper_models/Hagen/MitoVsAct/DeepLC/')
     parser.add_argument('--data_dir', type=str, help='Data directory', default='/group/jug/ashesh/data/ventura_gigascience/')
-    parser.add_argument('--mmse_count', type=int, help='Number of mmse values to generate', default=5)
+    parser.add_argument('--mmse_count', type=int, help='Number of mmse values to generate', default=50)
     parser.add_argument('--MIXING_WEIGHT', type=float, help='Mixing parameter for input generation', default=0.5)
     parser.add_argument('--image_size_for_grid_centers', type=int, help='Image size for grid centers', default=256)
     parser.add_argument('--custom_image_size', type=int, help='Custom image size', default=512)

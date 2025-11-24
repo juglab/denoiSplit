@@ -1,0 +1,1 @@
+python notebooks/evaluate_notebook.py --ckpt_dir=/group/jug/ashesh/training/denoisplit/2502/D16-M3-S0-L0/5 --mmse_count=50 --MIXING_WEIGHT=0.5 --data_dir=/group/jug/ashesh/data/BioSR/
