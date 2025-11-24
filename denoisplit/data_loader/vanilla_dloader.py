@@ -59,6 +59,7 @@ class MultiChDloader:
         else:
             self._datausage_fraction = 1.0
 
+        self._input_idx = data_config.get('input_idx', None)
         self.load_data(data_config,
                        datasplit_type,
                        val_fraction=val_fraction,
@@ -524,14 +525,25 @@ class MultiChDloader:
                     [np.std(self._data[..., k:k + 1], keepdims=True) for k in range(self._num_channels)],
                     keepdims=True)[0]
             else:
-                mean = np.mean(self._data, keepdims=True).reshape(1, 1, 1, 1)
-                if self._noise_data is not None:
-                    std = np.std(self._data + self._noise_data[..., 1:], keepdims=True).reshape(1, 1, 1, 1)
+                if self._input_idx is None:
+                    target_data = self._data  
                 else:
-                    std = np.std(self._data, keepdims=True).reshape(1, 1, 1, 1)
+                    assert self._input_idx == self._data.shape[-1] - 1, "Input can only be last channel for this case"
+                    target_data = self._data[..., :self._input_idx]
+                mean = np.mean(target_data, keepdims=True).reshape(1, 1, 1, 1)
+                if self._noise_data is not None:
+                    std = np.std(target_data + self._noise_data[..., 1:], keepdims=True).reshape(1, 1, 1, 1)
+                else:
+                    std = np.std(target_data, keepdims=True).reshape(1, 1, 1, 1)
 
             mean = np.repeat(mean, self._num_channels, axis=1)
             std = np.repeat(std, self._num_channels, axis=1)
+            if self._input_idx is not None:
+                mean_ch, std_ch = self.compute_individual_mean_std()
+                mean[:, self._input_idx] = mean_ch[:, self._input_idx]
+                std[:, self._input_idx] = std_ch[:, self._input_idx]
+                
+
 
             if self._skip_normalization_using_mean:
                 mean = np.zeros_like(mean)
@@ -580,28 +592,42 @@ class MultiChDloader:
         return tuple(final_img_tuples)
 
     def get_mean_std_for_input(self):
-        return self.get_mean_std()
+        meanv, stdv = self.get_mean_std()
+        if self._input_idx is not None:
+            mean = meanv[:,self._input_idx:]
+            std = stdv[:,self._input_idx:]
+            return mean, std
+        else:
+            return meanv, stdv
 
     def _compute_input_with_alpha(self, img_tuples, alpha):
-        assert self._normalized_input is True, "normalization should happen here"
-        inp = 0
-        for alpha, img in zip(alpha, img_tuples):
-            inp += img * alpha
+        if self._input_idx is not None:
+            inp = img_tuples[self._input_idx]
+            mean, std = self.get_mean_std_for_input()
+            mean = mean.squeeze()
+            std = std.squeeze()
+            inp = (inp - mean) / std
+            return inp.astype(np.float32)
+        else:
+            assert self._normalized_input is True, "normalization should happen here"
+            inp = 0
+            for alpha, img in zip(alpha, img_tuples):
+                inp += img * alpha
 
-        mean, std = self.get_mean_std_for_input()
-        mean = mean.squeeze()
-        std = std.squeeze()
-        if mean.size == 1:
-            mean = mean.reshape(1, )
-            std = std.reshape(1, )
+            mean, std = self.get_mean_std_for_input()
+            mean = mean.squeeze()
+            std = std.squeeze()
+            if mean.size == 1:
+                mean = mean.reshape(1, )
+                std = std.reshape(1, )
 
-        assert len(mean) == len(img_tuples)
-        for i in range(len(mean)):
-            assert mean[0] == mean[i]
-            assert std[0] == std[i]
+            assert len(mean) == len(img_tuples)
+            for i in range(len(mean)):
+                assert mean[0] == mean[i]
+                assert std[0] == std[i]
 
-        inp = (inp - mean[0]) / std[0]
-        return inp.astype(np.float32)
+            inp = (inp - mean[0]) / std[0]
+            return inp.astype(np.float32)
 
     def _sample_alpha(self):
         alpha_pos = np.random.rand()
@@ -667,7 +693,11 @@ class MultiChDloader:
                 target.append(img_tuples[i] * alpha[i])
             target = np.concatenate(target, axis=0)
         else:
-            target = np.concatenate(img_tuples, axis=0)
+            if self._input_idx is not None:
+                target = [img_tuples[i] for i in range(len(img_tuples)) if i != self._input_idx]
+                target = np.concatenate(target, axis=0)
+            else:
+                target = np.concatenate(img_tuples, axis=0)
 
         output = [inp, target]
 
