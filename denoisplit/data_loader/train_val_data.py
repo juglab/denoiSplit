@@ -1,6 +1,7 @@
 """
 Here, the idea is to load the data from different data dtypes into a single interface.
 """
+
 from typing import Union
 
 from denoisplit.config_utils import get_configdir_from_saved_predictionfile, load_config
@@ -25,46 +26,49 @@ from denoisplit.data_loader.two_tiff_rawdata_loader import get_train_val_data as
 from denoisplit.core.tiff_reader import load_tiff
 import os
 
-def get_train_val_data(data_config,
-                       fpath,
-                       datasplit_type: DataSplitType,
-                       val_fraction=None,
-                       test_fraction=None,
-                       allow_generation=None,
-                       ignore_specific_datapoints=None):
+
+def get_train_val_data(
+    data_config,
+    fpath,
+    datasplit_type: DataSplitType,
+    val_fraction=None,
+    test_fraction=None,
+    allow_generation=None,
+    ignore_specific_datapoints=None,
+):
     """
     Ensure that the shape of data should be N*H*W*C: N is number of data points. H,W are the image dimensions.
     C is the number of channels.
     """
-    assert isinstance(datasplit_type, int), f'datasplit_type should be an integer, but is {datasplit_type}'
+    assert isinstance(datasplit_type, int), f"datasplit_type should be an integer, but is {datasplit_type}"
     if data_config.data_type == DataType.OptiMEM100_014:
-        return _load_tiff_train_val(fpath,
-                                    data_config,
-                                    datasplit_type,
-                                    val_fraction=val_fraction,
-                                    test_fraction=test_fraction)
+        return _load_tiff_train_val(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.CustomSinosoid:
-        return _loadsinosoid(fpath,
-                             data_config,
-                             datasplit_type,
-                             val_fraction=val_fraction,
-                             test_fraction=test_fraction,
-                             allow_generation=allow_generation)
+        return _loadsinosoid(
+            fpath,
+            data_config,
+            datasplit_type,
+            val_fraction=val_fraction,
+            test_fraction=test_fraction,
+            allow_generation=allow_generation,
+        )
 
     elif data_config.data_type == DataType.CustomSinosoidThreeCurve:
-        return _loadsinosoid3curve(fpath,
-                                   data_config,
-                                   datasplit_type,
-                                   val_fraction=val_fraction,
-                                   test_fraction=test_fraction,
-                                   allow_generation=allow_generation)
+        return _loadsinosoid3curve(
+            fpath,
+            data_config,
+            datasplit_type,
+            val_fraction=val_fraction,
+            test_fraction=test_fraction,
+            allow_generation=allow_generation,
+        )
 
     elif data_config.data_type == DataType.Prevedel_EMBL:
-        return _load_tiff_train_val(fpath,
-                                    data_config,
-                                    datasplit_type,
-                                    val_fraction=val_fraction,
-                                    test_fraction=test_fraction)
+        return _load_tiff_train_val(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.AllenCellMito:
         return _loadallencellmito(fpath, data_config, datasplit_type, val_fraction, test_fraction)
     elif data_config.data_type in [DataType.SeparateTiffData, DataType.PredictedTiffData]:
@@ -72,101 +76,109 @@ def get_train_val_data(data_config,
             cfg1 = load_config(get_configdir_from_saved_predictionfile(data_config.ch1_fname))
             cfg2 = load_config(get_configdir_from_saved_predictionfile(data_config.ch2_fname))
             cfg3 = load_config(get_configdir_from_saved_predictionfile(data_config.ch_input_fname))
-            msg = ''
-            if 'poisson_noise_factor' in cfg1.data or 'poisson_noise_factor' in cfg2.data or 'poisson_noise_factor' in cfg3.data:
-                msg = f'p1:{cfg1.data.poisson_noise_factor} p2:{cfg2.data.poisson_noise_factor} p3:{cfg3.data.poisson_noise_factor}'
-                assert cfg1.data.poisson_noise_factor == cfg2.data.poisson_noise_factor == cfg3.data.poisson_noise_factor, msg
+            msg = ""
+            if (
+                "poisson_noise_factor" in cfg1.data
+                or "poisson_noise_factor" in cfg2.data
+                or "poisson_noise_factor" in cfg3.data
+            ):
+                msg = f"p1:{cfg1.data.poisson_noise_factor} p2:{cfg2.data.poisson_noise_factor} p3:{cfg3.data.poisson_noise_factor}"
+                assert (
+                    cfg1.data.poisson_noise_factor == cfg2.data.poisson_noise_factor == cfg3.data.poisson_noise_factor
+                ), msg
 
-            if 'enable_gaussian_noise' in cfg1.data or 'enable_gaussian_noise' in cfg2.data or 'enable_gaussian_noise' in cfg3.data:
-                assert cfg1.data.enable_gaussian_noise == cfg2.data.enable_gaussian_noise == cfg3.data.enable_gaussian_noise
+            if (
+                "enable_gaussian_noise" in cfg1.data
+                or "enable_gaussian_noise" in cfg2.data
+                or "enable_gaussian_noise" in cfg3.data
+            ):
+                assert (
+                    cfg1.data.enable_gaussian_noise
+                    == cfg2.data.enable_gaussian_noise
+                    == cfg3.data.enable_gaussian_noise
+                )
                 if cfg1.data.enable_gaussian_noise:
-                    msg = f'g1:{cfg1.data.synthetic_gaussian_scale} g2:{cfg2.data.synthetic_gaussian_scale} g3:{cfg3.data.synthetic_gaussian_scale}'
-                    assert cfg1.data.synthetic_gaussian_scale == cfg2.data.synthetic_gaussian_scale == cfg3.data.synthetic_gaussian_scale, msg
+                    msg = f"g1:{cfg1.data.synthetic_gaussian_scale} g2:{cfg2.data.synthetic_gaussian_scale} g3:{cfg3.data.synthetic_gaussian_scale}"
+                    assert (
+                        cfg1.data.synthetic_gaussian_scale
+                        == cfg2.data.synthetic_gaussian_scale
+                        == cfg3.data.synthetic_gaussian_scale
+                    ), msg
 
         return _loadseparatetiff(fpath, data_config, datasplit_type, val_fraction, test_fraction)
     elif data_config.data_type == DataType.Pavia2:
         return _loadpavia2(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
     elif data_config.data_type == DataType.Pavia2VanillaSplitting:
-        return _loadpavia2_vanilla(fpath,
-                                   data_config,
-                                   datasplit_type,
-                                   val_fraction=val_fraction,
-                                   test_fraction=test_fraction)
+        return _loadpavia2_vanilla(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.SemiSupBloodVesselsEMBL:
-        return _loadembl2_semisup(fpath,
-                                  data_config,
-                                  datasplit_type,
-                                  val_fraction=val_fraction,
-                                  test_fraction=test_fraction)
+        return _loadembl2_semisup(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
 
     elif data_config.data_type == DataType.ShroffMitoEr:
-        return _loadschroff_mito_er(fpath,
-                                    data_config,
-                                    datasplit_type,
-                                    val_fraction=val_fraction,
-                                    test_fraction=test_fraction)
+        return _loadschroff_mito_er(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.HTIba1Ki67:
-        return _load_ht_iba1_ki67(fpath,
-                                  data_config,
-                                  datasplit_type,
-                                  val_fraction=val_fraction,
-                                  test_fraction=test_fraction)
+        return _load_ht_iba1_ki67(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.BioSR_MRC:
         return _loadmrc(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
-    
+
     elif data_config.data_type == DataType.TavernaSox2Golgi:
-        return _loadsox2golgi(fpath,
-                              data_config,
-                              datasplit_type,
-                              val_fraction=val_fraction,
-                              test_fraction=test_fraction)
-    
-    elif data_config.data_type in [DataType.HTLIF24,DataType.CosemHela, DataType.CosemJrcChoroidPlexus2]:
+        return _loadsox2golgi(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
+
+    elif data_config.data_type in [DataType.HTLIF24, DataType.CosemHela, DataType.CosemJrcChoroidPlexus2]:
         if data_config.data_type == DataType.HTLIF24:
-            fname = 'train_500ms_Ch_B-Ch_D-Ch_BD.tif'
+            fname = "train_500ms_Ch_B-Ch_D-Ch_BD.tif"
         elif data_config.data_type == DataType.CosemJrcChoroidPlexus2:
-            fname = 'train_jrc_choroid-plexus-2_bleedthrough_er_pred_endo_pred_EGFP_Venus_R3.0-3.0_S2_D1_Ex100.0ms.tif'
+            fname = "train_jrc_choroid-plexus-2_bleedthrough_er_pred_endo_pred_EGFP_Venus_R3.0-3.0_S2_D1_Ex100.0ms.tif"
         else:
-            fname = 'train_jrc_hela-3_bleedthrough_EGFP_Venus_R3.0-3.0_S4_D1_Ex100.0ms.tif'
+            fname = "train_jrc_hela-3_bleedthrough_EGFP_Venus_R3.0-3.0_S4_D1_Ex100.0ms.tif"
 
-        subdir ='train'
-        if datasplit_type  == DataSplitType.Val:
-            fname = fname.replace('train', 'val')
-            subdir = 'val'
+        subdir = "train"
+        if datasplit_type == DataSplitType.Val:
+            fname = fname.replace("train", "val")
+            subdir = "val"
         elif datasplit_type == DataSplitType.Test:
-            fname = fname.replace('train', 'test')
-            subdir = 'test'
+            fname = fname.replace("train", "test")
+            subdir = "test"
 
-        fpath = os.path.join(fpath,subdir,fname)
+        fpath = os.path.join(fpath, subdir, fname)
         data = load_tiff(fpath)
-        if 'keep_real_input' in data_config and data_config.keep_real_input:
+        if "keep_real_input" in data_config and data_config.keep_real_input:
             pass
         else:
             # skip the input channel
-            data = data[...,:2]
+            data = data[..., :2]
 
-        print(f'Loaded {DataType.name(data_config.data_type)} data from {fpath}', data.shape)
+        print(f"Loaded {DataType.name(data_config.data_type)} data from {fpath}", data.shape)
         return data
 
     elif data_config.data_type == DataType.TavernaSox2GolgiV2:
-        fname = 'train.tif'
-        subdir ='train'
-        if datasplit_type  == DataSplitType.Val:
-            fname = fname.replace('train', 'val')
-            subdir = 'val'
+        fname = "train.tif"
+        subdir = "train"
+        if datasplit_type == DataSplitType.Val:
+            fname = fname.replace("train", "val")
+            subdir = "val"
         elif datasplit_type == DataSplitType.Test:
-            fname = fname.replace('train', 'test')
-            subdir = 'test'
-        fpath = os.path.join(fpath,subdir,fname)
+            fname = fname.replace("train", "test")
+            subdir = "test"
+        fpath = os.path.join(fpath, subdir, fname)
         data = load_tiff(fpath)
 
-        if 'keep_real_input' in data_config and data_config.keep_real_input:
+        if "keep_real_input" in data_config and data_config.keep_real_input:
             pass
         else:
             # skip the input channel
-            data = data[...,:2]
+            data = data[..., :2]
 
-        print(f'Loaded {DataType.name(data_config.data_type)} data from {fpath}', data.shape)
+        print(f"Loaded {DataType.name(data_config.data_type)} data from {fpath}", data.shape)
         return data
 
         # return _loadsox2golgi_v2(fpath,
@@ -177,12 +189,10 @@ def get_train_val_data(data_config,
     elif data_config.data_type == DataType.Dao3Channel:
         return _loaddao3ch(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
     elif data_config.data_type == DataType.ExpMicroscopyV2:
-        return _loadexp_microscopyv2(fpath,
-                                     data_config,
-                                     datasplit_type,
-                                     val_fraction=val_fraction,
-                                     test_fraction=test_fraction)
+        return _loadexp_microscopyv2(
+            fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction
+        )
     elif data_config.data_type == DataType.Pavia3SeqData:
         return _loadpavia3(fpath, data_config, datasplit_type, val_fraction=val_fraction, test_fraction=test_fraction)
     else:
-        raise NotImplementedError(f'{DataType.name(data_config.data_type)} is not implemented')
+        raise NotImplementedError(f"{DataType.name(data_config.data_type)} is not implemented")
