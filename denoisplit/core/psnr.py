@@ -55,7 +55,10 @@ def RangeInvariantPsnr(gt, pred):
     Adapted from https://github.com/juglab/ScaleInvPSNR/blob/master/psnr.py
     It rescales the prediction to ensure that the prediction has the same range as the ground truth.
     """
-    assert len(gt.shape) == 3, 'Images must be in shape: (batch,H,W)'
+    if len(gt.shape) ==2:
+        gt = gt[None]
+        pred = pred[None]
+
     gt = gt.view(len(gt), -1)
     pred = pred.view(len(gt), -1)
     ra = (torch.max(gt, dim=1).values - torch.min(gt, dim=1).values) / torch.std(gt, dim=1)
