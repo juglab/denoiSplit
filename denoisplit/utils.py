@@ -10,7 +10,7 @@ from sklearn.feature_extraction import image
 from tqdm import tqdm
 
 from IPython.display import clear_output
-from tifffile import imsave
+# from tifffile import imsave
 
 
 def normalize(img, mean, std):
