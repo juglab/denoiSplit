@@ -48,6 +48,7 @@ if __name__ == "__main__":
     output_config_fpath = os.path.join(outputdir, "config", fname.replace(".ipynb", ".txt"))
     output_results_fpath = os.path.join(outputdir, "results", fname.replace(".ipynb", ".pkl"))
     os.makedirs(os.path.dirname(output_config_fpath), exist_ok=True)
+    os.makedirs(os.path.dirname(output_results_fpath), exist_ok=True)
     # save the configuration
     # convert args to dict
     args_dict = vars(args)
