@@ -56,6 +56,13 @@ if __name__ == "__main__":
     with open(output_config_fpath, "w") as f:
         f.write(str(args_dict))
 
+    if args.data_split_type == "Test":
+        calibration_params_fpath = output_results_fpath.replace("_Test_", "_Val_").replace("_Test.", "_Val.")
+        if os.path.exists(calibration_params_fpath):
+            param_dict["calibration_params_fpath"] = calibration_params_fpath
+            print("Calibration Params:", calibration_params_fpath)
+        output_results_fpath = None
+
     param_dict["eval_datasplit_type"] = DataSplitType.from_name(args.data_split_type)
     param_dict["notebook_output_fpath"] = output_results_fpath
     print(output_fpath, "\n", output_config_fpath, "\n Data Split Evaluated:", args.data_split_type)
