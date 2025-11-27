@@ -46,6 +46,7 @@ if __name__ == "__main__":
     param_dict["ckpt_dir"] = args.ckpt_dir
     output_fpath = os.path.join(outputdir, fname)
     output_config_fpath = os.path.join(outputdir, "config", fname.replace(".ipynb", ".txt"))
+    output_results_fpath = os.path.join(outputdir, "results", fname.replace(".ipynb", ".pkl"))
     os.makedirs(os.path.dirname(output_config_fpath), exist_ok=True)
     # save the configuration
     # convert args to dict
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         f.write(str(args_dict))
 
     param_dict["eval_datasplit_type"] = DataSplitType.from_name(args.data_split_type)
-    param_dict["notebook_output_dir"] = os.path.dirname(output_config_fpath)
+    param_dict["notebook_output_fpath"] = output_results_fpath
     print(output_fpath, "\n", output_config_fpath, "\n Data Split Evaluated:", args.data_split_type)
     pm.execute_notebook(args.notebook, output_fpath, parameters=param_dict)
     # python notebooks/evaluate_notebook.py --ckpt_dir=/group/jug/ashesh/training/denoisplit/2502/D16-M3-S0-L0/5 --data_dir=/group/jug/ashesh/data/BioSR/ --mmse_count=10 --MIXING_WEIGHT=0.1
